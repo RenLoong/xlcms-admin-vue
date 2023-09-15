@@ -2,6 +2,7 @@ import { ElNotification } from "element-plus";
 import config from "./config";
 import axios, { AxiosResponse } from "axios";
 import { useUserStore } from "@/stores";
+import router from "@/routers";
 export const useStorage = () => {
     /**
      * 设置储存数据
@@ -107,7 +108,18 @@ axios.interceptors.request.use((_config) => {
     return Promise.reject(error);
 });
 axios.interceptors.response.use((response: AxiosResponse) => {
+    const { clearUserInfo } = useUserStore();
     if (response?.data !== undefined) {
+        if (response.data.code === $http.ResponseCode.DELETE_LOGIN) {
+            clearUserInfo();
+            ElNotification({
+                title: '登录失效',
+                message: response.data.message || '登录失效，请重新登录',
+                showClose: false,
+                type: 'error',
+            })
+            return router.push('/login');
+        }
         return response.data;
     }
 }, (error) => {
@@ -129,6 +141,7 @@ export const $http = {
     ResponseCode: {
         SUCCESS: 200,
         NEED_LOGIN: 600,
+        DELETE_LOGIN: 601,
         PAY_SUCCESS: 9000
     },
     baseURL,

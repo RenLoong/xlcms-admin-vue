@@ -33,6 +33,7 @@ export default () => {
                     router.push('/login');
                 }
             } else if (e.newValue !== null) {
+                USERINFO.value = JSON.parse(e.newValue).data as UserInfoInterface;
                 if (router.currentRoute.value.meta.login_access === true) {
                     initUserInfo();
                     router.push('/')
